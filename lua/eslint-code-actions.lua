@@ -50,8 +50,12 @@ local show_actions = function(actions)
 		if selected then
 			for _, item in ipairs(actions) do
 				if format_title(item) == selected then
-					print("You selected:", vim.inspect(item))
-					-- You can call your custom handler here
+					if item.type == "currentLine" then
+						local currentLine = vim.fn.line(".")
+						vim.api.nvim_buf_set_lines(0, currentLine - 1, currentLine - 1, false, {
+							"// eslint-disable-next-line " .. item.code
+						})
+					end
 					return
 				end
 			end
