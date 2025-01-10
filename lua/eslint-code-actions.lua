@@ -22,6 +22,25 @@ local eca = {
 ---@field code string: The code for the rule
 ---@field idx number: The index number for this action
 
+---Disable the rule for the current line only
+---@param item eca.Action
+local disableCurrentLineRule = function(item)
+	local prevLine = vim.fn.line(".") - 1
+	local prevLineContent = vim.api.nvim_buf_get_lines(0, prevLine - 1,
+		prevLine,
+		false)[1]
+	if string.match(prevLineContent, commentToMatch.currentLine) then
+		vim.api.nvim_buf_set_lines(0, prevLine - 1, prevLine, false, {
+			prevLineContent .. ", " .. item.code
+
+		})
+		return
+	end
+	vim.api.nvim_buf_set_lines(0, prevLine, prevLine, false, {
+		commentActions.currentLine .. " " .. item.code
+	})
+end
+
 ---Creates a new action item
 ---@param diagnostic eca.Diagnostic
 ---@param type "currentLine" | "nextLine" | "file"
@@ -32,8 +51,8 @@ local create_action = function(diagnostic, type, idx)
 		title = diagnostic.message,
 		source = diagnostic.source,
 		code = diagnostic.code,
-		idx = idx
-
+		idx = idx,
+		command = disableCurrentLineRule
 	}
 	return action
 end
@@ -56,25 +75,9 @@ local show_actions = function(actions)
 		prompt = "Select an action:",
 	}, function(selected)
 		if selected then
-			for _, item in ipairs(actions) do
-				if format_title(item) == selected then
-					if item.type == "currentLine" then
-						local prevLine = vim.fn.line(".") - 1
-						local prevLineContent = vim.api.nvim_buf_get_lines(0, prevLine - 1,
-							prevLine,
-							false)[1]
-						if string.match(prevLineContent, commentToMatch.currentLine) then
-							vim.api.nvim_buf_set_lines(0, prevLine - 1, prevLine, false, {
-								prevLineContent .. ", " .. item.code
-
-							})
-							return
-						end
-						vim.api.nvim_buf_set_lines(0, prevLine, prevLine, false, {
-							commentActions.currentLine .. " " .. item.code
-						})
-					end
-					return
+			for _, action in ipairs(actions) do
+				if format_title(action) == selected then
+					action.command(action)
 				end
 			end
 		end
