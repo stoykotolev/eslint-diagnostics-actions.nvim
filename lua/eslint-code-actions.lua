@@ -69,8 +69,6 @@ local get_diagnostics = function()
 		counter = counter + 1
 		table.insert(actions, create_action(diagnostic, "file", counter))
 		counter = counter + 1
-		table.insert(actions, create_action(diagnostic, "nextLine", counter))
-		counter = counter + 1
 	end
 
 	show_actions(actions)
