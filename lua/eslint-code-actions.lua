@@ -59,9 +59,19 @@ local show_actions = function(actions)
 			for _, item in ipairs(actions) do
 				if format_title(item) == selected then
 					if item.type == "currentLine" then
-						local currentLine = vim.fn.line(".")
-						vim.api.nvim_buf_set_lines(0, currentLine - 1, currentLine - 1, false, {
-							"// eslint-disable-next-line " .. item.code
+						local prevLine = vim.fn.line(".") - 1
+						local prevLineContent = vim.api.nvim_buf_get_lines(0, prevLine - 1,
+							prevLine,
+							false)[1]
+						if string.match(prevLineContent, commentToMatch.currentLine) then
+							vim.api.nvim_buf_set_lines(0, prevLine - 1, prevLine, false, {
+								prevLineContent .. ", " .. item.code
+
+							})
+							return
+						end
+						vim.api.nvim_buf_set_lines(0, prevLine, prevLine, false, {
+							commentActions.currentLine .. " " .. item.code
 						})
 					end
 					return
