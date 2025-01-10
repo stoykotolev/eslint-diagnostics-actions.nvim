@@ -1,11 +1,11 @@
 ---@diagnostic disable: undefined-field
 local commentToMatch = {
 	currentLine = "// eslint%-disable%-next%-line",
-	file = "/* eslint%-disable */"
+	file = "/* eslint%-disable"
 }
 local commentActions = {
 	currentLine = "// eslint-disable-next-line",
-	file = { "/* eslint-disable", "*/" }
+	file = "/* eslint-disable "
 }
 local eca = {
 }
@@ -45,8 +45,14 @@ end
 ---Disable the rule for the whole file
 ---@param item eca.Action
 local disableRuleForFile = function(item)
+	local firstLineContent = vim.api.nvim_buf_get_lines(0, 0, 1, false)[1]
+	if string.match(firstLineContent, commentToMatch.file) then
+		local updatedRule = firstLineContent:sub(1, -3) .. ", " .. item.code .. " */"
+		vim.api.nvim_buf_set_lines(0, 0, 1, false, { updatedRule })
+		return
+	end
 	vim.api.nvim_buf_set_lines(0, 0, 0, false, {
-		commentActions.file[1] .. " " .. item.code .. " " .. commentActions.file[2]
+		commentActions.file .. item.code .. " */"
 	})
 end
 
