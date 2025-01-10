@@ -1,10 +1,11 @@
 ---@diagnostic disable: undefined-field
 local commentToMatch = {
 	currentLine = "// eslint%-disable%-next%-line",
-	file = "/* eslint-disable */"
+	file = "/* eslint%-disable */"
 }
 local commentActions = {
 	currentLine = "// eslint-disable-next-line",
+	file = { "/* eslint-disable", "*/" }
 }
 local eca = {
 }
@@ -41,9 +42,17 @@ local disableCurrentLineRule = function(item)
 	})
 end
 
+---Disable the rule for the whole file
+---@param item eca.Action
+local disableRuleForFile = function(item)
+	vim.api.nvim_buf_set_lines(0, 0, 0, false, {
+		commentActions.file[1] .. " " .. item.code .. " " .. commentActions.file[2]
+	})
+end
+
 ---Creates a new action item
 ---@param diagnostic eca.Diagnostic
----@param type "currentLine" | "nextLine" | "file"
+---@param type "currentLine" | "file"
 ---@return eca.Action
 local create_action = function(diagnostic, type, idx)
 	local action = {
@@ -52,7 +61,7 @@ local create_action = function(diagnostic, type, idx)
 		source = diagnostic.source,
 		code = diagnostic.code,
 		idx = idx,
-		command = disableCurrentLineRule
+		command = type == "currentLine" and disableCurrentLineRule or type == "file" and disableRuleForFile
 	}
 	return action
 end
