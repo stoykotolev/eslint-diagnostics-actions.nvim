@@ -1,5 +1,13 @@
 ---@diagnostic disable: undefined-field
-local eca = {}
+local commentToMatch = {
+	currentLine = "// eslint%-disable%-next%-line",
+	file = "/* eslint-disable */"
+}
+local commentActions = {
+	currentLine = "// eslint-disable-next-line",
+}
+local eca = {
+}
 
 ---@class eca.Diagnostic
 ---@field source string: The source for this diagnostic
@@ -7,7 +15,7 @@ local eca = {}
 ---@field message string: The diagnostic message
 
 ---@class eca.Action
----@field type "currentLine" | "nextLine" | "file"
+---@field type "currentLine" | "file"
 ---@field command fun()
 ---@field title string: The title of the current action
 ---@field source string: The source of the diagnostic
