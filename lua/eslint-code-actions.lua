@@ -96,7 +96,7 @@ local show_actions = function(actions)
 end
 
 local get_diagnostics = function()
-  local diagnostics = vim.lsp.diagnostic.get_line_diagnostics()
+  local diagnostics = vim.lsp.diagnostic.get()
   local actions = {}
 
   local counter = 1
