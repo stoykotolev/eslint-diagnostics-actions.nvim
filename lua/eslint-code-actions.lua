@@ -96,14 +96,20 @@ local show_actions = function(actions)
 end
 
 local get_diagnostics = function()
-  local diagnostics = vim.lsp.diagnostic.get()
+  local diagnostics = vim.diagnostic.get(0)
   local actions = {}
 
   local counter = 1
   for _, diagnostic in ipairs(diagnostics) do
-    table.insert(actions, create_action(diagnostic, "currentLine", counter))
+    local eca_diagnostic = {
+      code = diagnostic.code,
+      source = diagnostic.source,
+      messsage = diagnostic.message
+    }
+
+    table.insert(actions, create_action(eca_diagnostic, "currentLine", counter))
     counter = counter + 1
-    table.insert(actions, create_action(diagnostic, "file", counter))
+    table.insert(actions, create_action(eca_diagnostic, "file", counter))
     counter = counter + 1
   end
 
